@@ -9,6 +9,27 @@ namespace Comandas_API.Controllers
     [ApiController]// Define que essa classe é um controlador de API
     public class CardapioItemController : ControllerBase// Define que essa classe herda de ControllerBase
     {
+        public List<CardapioItem> cardapios = new List<CardapioItem>()
+        {
+        new CardapioItem
+        {
+            Id = 1,
+            Titulo = "Coxinha",
+            Descricao = "Coxinha de frango com catupiry",
+            Preco = 5.00M,
+            PossuiPreparo = true
+        },
+        new CardapioItem// Define um novo item de cardápio
+          {
+                Id = 2,
+                Titulo = "X-LasVegas",
+                Descricao = "Areia e Carne",
+                Preco = 25.00M,
+                PossuiPreparo = true
+          }
+
+        };
+        //Metodo GET que retorna uma lista de cardapio
         // GET: api/<CardapioItemController>
         [HttpGet]// Define que esse método responde a requisições GET
         public IEnumerable<CardapioItem> Get()
@@ -34,12 +55,17 @@ namespace Comandas_API.Controllers
                 },
             };
         }
-
+       
         // GET api/<CardapioItemController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public IResult Get(int id)
         {
-            return "value";
+            var cardapio = cardapios.FirstOrDefault(c => c.Id == id);
+            if(cardapio is null)
+            {
+                return Results.NotFound("Cardapio não encontrado!");
+            }
+            return Results.Ok(cardapio);
         }
 
         // POST api/<CardapioItemController>
