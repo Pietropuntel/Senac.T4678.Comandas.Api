@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Comandas_API.DTOS;
+using Comandas_API.Models;
+using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,29 +10,75 @@ namespace Comandas_API.Controllers
     [ApiController]
     public class UsuarioController : ControllerBase
     {
+        static List<Usuario> usuarios = new List<Usuario>() { 
+            new Usuario
+            {
+                Id = 1,
+                Nome = "Admin",
+                Email = "admin@admin.com",
+                Senha = "admin123"
+            },        
+           new Usuario
+           {
+               Id = 2,
+               Nome = "Usuario",
+               Email = "usuario@usuario.com",
+               Senha = "usuario123"
+           }
+        
+        
+        
+        };
         // GET: api/<UsuarioController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IResult Get()
         {
-            return new string[] { "value1", "value2" };
+            return Results.Ok(usuarios);
         }
 
         // GET api/<UsuarioController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public IResult Get(int id)
         {
-            return "value";
+            var usuario = usuarios.FirstOrDefault(u => u.Id == id);
+            if (usuario is null)
+            {
+                return Results.NotFound("Usuario não encontrado");
+            }
+            return Results.Ok(usuario);
         }
 
         // POST api/<UsuarioController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public IResult Post ([FromBody] UsuarioCreateRequest usuarioCreate)
         {
+            if(usuarioCreate.Senha.Length < 6)
+            {
+                return Results.BadRequest("A senha deve ter no mínimo 6 caracteres");
+            }
+            if(usuarioCreate.Nome.Length < 3)
+            {
+                return Results.BadRequest("O nome deve ter no mínimo 3 caracteres");
+            }
+            if(usuarioCreate.Email.Length < 5 || !usuarioCreate.Email.Contains("@"))
+            {
+                return Results.BadRequest("O email deve ter no mínimo 5 caracteres e conter @");
+            }
+            var usuario = new Usuario
+            {
+                Id = usuarios.Count + 1,
+                Nome = usuarioCreate.Nome,
+                Email = usuarioCreate.Email,
+                Senha = usuarioCreate.Senha
+            };
+            //add o usuario na lista
+            usuarios.Add(usuario);
+            return Results.Created($"/api/usuario/{usuario.Id}", usuario);
         }
 
-        // PUT api/<UsuarioController>/5
+        // PUT api/<UsuarioController>/5 
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public void Put(int id, [FromBody] UsuarioUpdateRequest usuarioUpdate)
         {
         }
 
