@@ -11,21 +11,40 @@ namespace Comandas_API.Controllers
     [ApiController]
     public class ComandaController : ControllerBase
     {   
-        List<Comanda> comandas = new List<Comanda>()
+        static List<Comanda> comandas = new List<Comanda>()
         {
             new Comanda
             {
                 Id = 1,
                 NomeCliente = "Pietro",
                 NumeroMesa = 1,
-              
-               
+                Itens = new List<ComandaItem>()
+                {
+                    new ComandaItem
+                    {
+                        Id = 1,
+                        CardapioItemId = 1,
+                        ComandaId = 1,
+                    },
+                    
+                }   
+
             },
             new Comanda
             {
                 Id = 2,
                 NomeCliente = "Pedro",
                 NumeroMesa = 2,
+                Itens = new List<ComandaItem>()
+                {
+                    new ComandaItem
+                    {
+                        Id = 2,
+                        CardapioItemId = 2,
+                        ComandaId = 2,
+                    },
+                   
+                }
             }
         };
 
@@ -53,7 +72,7 @@ namespace Comandas_API.Controllers
 
         // POST api/<ComandaController>
         [HttpPost]
-        public void Post([FromBody] ComandaCreateRequest comandaCreate)
+        public IResult Post([FromBody] ComandaCreateRequest comandaCreate)
         {
             if (comandaCreate.NomeCliente.Length < 3)
             {
@@ -74,6 +93,18 @@ namespace Comandas_API.Controllers
                 NumeroMesa = comandaCreate.NumeroMesa,
 
             };
+            var itensComanda = new List<ComandaItem>();
+            foreach (int cardapioItemId in comandaCreate.CardapioItemIds)
+            {
+                var novoItemComanda = new ComandaItem
+                {
+                    Id = itensComanda.Count + 1,
+                    CardapioItemId = cardapioItemId,
+                    ComandaId = novaComanda.Id
+                };
+                itensComanda.Add(novoItemComanda);
+            }
+            novaComanda.Itens = itensComanda;
             comandas.Add(novaComanda);
             return Results.Created($"/api/comanda/{novaComanda.Id}", novaComanda);
         }
@@ -85,8 +116,13 @@ namespace Comandas_API.Controllers
             var comanda = comandas.FirstOrDefault(c => c.Id == id);
             if (comanda is null)
                 return Results.NotFound($"Comanda do id {id} Nao encontrado");
-            comanda.NumeroMesa = cardapio.Descricao;
-            comanda.NomeCliente = cardapio.Preco;
+            if (ComandaUpdate.NomeCliente.Length < 3)
+                return Results.NotFound("O nome do cliente deve ter no mínimo 3 caracteres");
+            if (ComandaUpdate.NumeroMesa <= 0)
+                return Results.BadRequest("O número da mesa deve ser maior que zero");
+
+            comanda.NomeCliente = ComandaUpdate.NomeCliente;
+            comanda.NumeroMesa = ComandaUpdate.NumeroMesa;
             return Results.NoContent();
         }
 
