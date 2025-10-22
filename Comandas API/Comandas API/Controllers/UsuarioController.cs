@@ -99,8 +99,16 @@ namespace Comandas_API.Controllers
 
         // DELETE api/<UsuarioController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IResult Delete(int id)
         {
+            var Usuario = usuarios
+               .FirstOrDefault(c => c.Id == id);
+            if (usuarios is null)
+                return Results.NotFound("pedido não encontrado");
+            var removidoComSucesso = usuarios.Remove(Usuario);
+            if (removidoComSucesso)
+                return Results.NotFound();
+            return Results.StatusCode(500);
         }
     }
 }

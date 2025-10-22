@@ -10,7 +10,7 @@ namespace Comandas_API.Controllers
     [ApiController]// Define que essa classe é um controlador de API
     public class CardapioItemController : ControllerBase// Define que essa classe herda de ControllerBase
     {
-        public List<CardapioItem> cardapios = new List<CardapioItem>()
+        static List<CardapioItem> cardapios = new List<CardapioItem>()
         {
         new CardapioItem
         {
@@ -114,8 +114,18 @@ namespace Comandas_API.Controllers
 
         // DELETE api/<CardapioItemController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IResult Delete(int id)
         {
+            var cardapioItem = cardapios
+                .FirstOrDefault(c => c.Id == id);
+            if (cardapioItem is null)
+                return Results.NotFound($"Cardapio {id} não encontrado");
+            cardapios.Remove(cardapioItem);
+            var removido = cardapios.Remove(cardapioItem);
+            if (removido)
+                return Results.NoContent();
+
+            return Results.StatusCode(500);
         }
     }
 }
