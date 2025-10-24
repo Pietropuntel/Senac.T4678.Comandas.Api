@@ -11,48 +11,17 @@ namespace Comandas_API.Controllers
     [ApiController]
     public class ComandaController : ControllerBase
     {   
-        static List<Comanda> comandas = new List<Comanda>()
+           public ComandasDbContext _context { get; set; }
+        public ComandaController(ComandasDbContext context)
         {
-            new Comanda
-            {
-                Id = 1,
-                NomeCliente = "Pietro",
-                NumeroMesa = 1,
-                Itens = new List<ComandaItem>()
-                {
-                    new ComandaItem
-                    {
-                        Id = 1,
-                        CardapioItemId = 1,
-                        ComandaId = 1,
-                    },
-                    
-                }   
-
-            },
-            new Comanda
-            {
-                Id = 2,
-                NomeCliente = "Pedro",
-                NumeroMesa = 2,
-                Itens = new List<ComandaItem>()
-                {
-                    new ComandaItem
-                    {
-                        Id = 2,
-                        CardapioItemId = 2,
-                        ComandaId = 2,
-                    },
-                   
-                }
-            }
-        };
-
+            _context = context;
+        }
 
         // GET: api/<ComandaController>
         [HttpGet]
         public IResult Get()
         {
+            var comandas = _context.comandas.ToList();
             return Results.Ok(comandas);
 
         }
@@ -61,7 +30,7 @@ namespace Comandas_API.Controllers
         [HttpGet("{id}")]
         public IResult Get(int id)
         {
-            var comanda = comandas.FirstOrDefault(c => c.Id == id);
+            var comanda = _context.comandas.FirstOrDefault(c => c.Id == id);
             if (comanda is null)
             {
                 return Results.NotFound("Comanda não encontrada");
@@ -88,7 +57,7 @@ namespace Comandas_API.Controllers
             }
             var novaComanda = new Comanda
             {
-                Id = comandas.Count + 1,
+                
                 NomeCliente = comandaCreate.NomeCliente,
                 NumeroMesa = comandaCreate.NumeroMesa,
 
@@ -105,7 +74,7 @@ namespace Comandas_API.Controllers
                 itensComanda.Add(novoItemComanda);
             }
             novaComanda.Itens = itensComanda;
-            comandas.Add(novaComanda);
+            _context.Add(novaComanda);
             return Results.Created($"/api/comanda/{novaComanda.Id}", novaComanda);
         }
 
@@ -113,7 +82,7 @@ namespace Comandas_API.Controllers
         [HttpPut("{id}")]
         public IResult Put(int id, [FromBody] ComandaUpdateRequest ComandaUpdate)
         {
-            var comanda = comandas.FirstOrDefault(c => c.Id == id);
+            var comanda = _context.comandas.FirstOrDefault(c => c.Id == id);
             if (comanda is null)
                 return Results.NotFound($"Comanda do id {id} Nao encontrado");
             if (ComandaUpdate.NomeCliente.Length < 3)
@@ -130,12 +99,13 @@ namespace Comandas_API.Controllers
         [HttpDelete("{id}")]
         public IResult Delete(int id)
         {
-            var comanda = comandas
+            var comanda = _context.comandas
                 .FirstOrDefault(c => c.Id == id);
             if (comanda is null)
                 return Results.NotFound("comanda não encontrada");
-            var removidoComSucesso = comandas.Remove(comanda);
-            if (removidoComSucesso)
+            _context.comandas.Remove(comanda);
+            var removido = _context.SaveChanges();
+            if (removido > 0)
                 return Results.NotFound();
             return Results.StatusCode(500);
 
