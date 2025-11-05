@@ -3,10 +3,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Comandas_API.Models
 {
+   
     public class Mesa
     {
+        [Key]// PK
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public int NumeroMesa { get; set; }
+        public int NumeroMesa { get; set; }//Fk
         public int SituacaoMesa { get; set; }
     }
     public enum SituacaoMesa

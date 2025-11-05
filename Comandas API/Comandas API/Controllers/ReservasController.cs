@@ -14,7 +14,7 @@ namespace Comandas_API.Controllers
     [ApiController]
     public class ReservasController : ControllerBase
     {
-        private readonly ComandasDbContext _context;
+        public ComandasDbContext _context { get; set; }
 
         public ReservasController(ComandasDbContext context)
         {
