@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Comandas_API.Models;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Comandas_API;
 
@@ -68,6 +71,24 @@ public class ComandasDbContext : DbContext
                 Preco = 35.00m,
                 PossuiPreparo = true
             });
+        modelBuilder.Entity<Models.CategoriaCardapio>().HasData(
+            new Models.CategoriaCardapio
+            {
+                Id = 1,
+                Nome = "Lanches",
+            },
+            new Models.CategoriaCardapio
+            {
+                Id = 2,
+                Nome = "Bebidas",
+            },
+            new Models.CategoriaCardapio
+            {
+                Id = 3,
+                Nome = "Acompanhamentos",
+            }
+);
+
         base.OnModelCreating(modelBuilder);
     }
 
@@ -79,4 +100,5 @@ public class ComandasDbContext : DbContext
     public DbSet<Models.PedidoCozinha> PedidoCozinhas { get; set; } = default!;
     public DbSet<Models.CardapioItem> CardapioItens { get; set; } = default!;
     public DbSet<Models.PedidoCozinhaItem> PedidoCozinhasItens { get; set; } = default!;
+    public DbSet<Models.CategoriaCardapio> CategoriaCardapio { get; set; } = default!;
 }
