@@ -1,5 +1,6 @@
 ﻿using Comandas_API.DTOS;
 using Comandas_API.Models;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -10,14 +11,14 @@ namespace Comandas_API.Controllers
     [ApiController]
     public class UsuarioController : ControllerBase
     {
-        static List<Usuario> usuarios = new List<Usuario>() { 
+        static List<Usuario> usuarios = new List<Usuario>() {
             new Usuario
             {
                 Id = 1,
                 Nome = "Admin",
                 Email = "admin@admin.com",
                 Senha = "admin123"
-            },        
+            },
            new Usuario
            {
                Id = 2,
@@ -25,9 +26,9 @@ namespace Comandas_API.Controllers
                Email = "usuario@usuario.com",
                Senha = "usuario123"
            }
-        
-        
-        
+
+
+
         };
         // GET: api/<UsuarioController>
         [HttpGet]
@@ -50,17 +51,17 @@ namespace Comandas_API.Controllers
 
         // POST api/<UsuarioController>
         [HttpPost]
-        public IResult Post ([FromBody] UsuarioCreateRequest usuarioCreate)
+        public IResult Post([FromBody] UsuarioCreateRequest usuarioCreate)
         {
-            if(usuarioCreate.Senha.Length < 6)
+            if (usuarioCreate.Senha.Length < 6)
             {
                 return Results.BadRequest("A senha deve ter no mínimo 6 caracteres");
             }
-            if(usuarioCreate.Nome.Length < 3)
+            if (usuarioCreate.Nome.Length < 3)
             {
                 return Results.BadRequest("O nome deve ter no mínimo 3 caracteres");
             }
-            if(usuarioCreate.Email.Length < 5 || !usuarioCreate.Email.Contains("@"))
+            if (usuarioCreate.Email.Length < 5 || !usuarioCreate.Email.Contains("@"))
             {
                 return Results.BadRequest("O email deve ter no mínimo 5 caracteres e conter @");
             }
@@ -89,7 +90,7 @@ namespace Comandas_API.Controllers
             var usuario = usuarios.FirstOrDefault(u => u.Id == id);
             if (usuario is null)
                 return Results.NotFound($"Usuario do id {id} Nao encontrado");
-              return Results.NoContent();
+            return Results.NoContent();
             usuario.Nome = usuarioUpdate.Nome;
             usuario.Email = usuarioUpdate.Email;
             usuario.Senha = usuarioUpdate.Senha;
@@ -101,6 +102,16 @@ namespace Comandas_API.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+        }
+        // criar metodo de login
+        // POst api/<Usuario/login
+        // {"email": "rafael@htmail
+
+        [HttpPost("login")]
+        public IResult Login([FromBody] LoginRequest loginRequest)
+        {
+
+            return Results.Ok("Usuario autenticado");
         }
     }
 }
