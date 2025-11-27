@@ -1,6 +1,7 @@
 ﻿using Comandas_API.DTOS;
 using Comandas_API.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -11,34 +12,26 @@ namespace Comandas_API.Controllers
     public class MesaController : ControllerBase
     {
 
-        public List<Mesa> mesas = new List<Mesa>()
+        public ComandasDbContext _context { get; set; }
+        public MesaController(ComandasDbContext context)
         {
-            new Mesa
-            {
-                Id = 1,
-                NumeroMesa = 1,
-                SituacaoMesa = (int)SituacaoMesa.Livre
-            },
-            new Mesa
-            {
-               Id = 2,
-               NumeroMesa = 2,
-               SituacaoMesa = (int)SituacaoMesa.Ocupada
-            }
-        };
+            _context = context;
+        }
+       
+     
         // GET: api/<MesaController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IResult Get()
         {
-            return new string[] { "value1", "value2" };
-        }
+            return Results.Ok(_context.Mesas.ToList());
+    }
 
         // GET api/<MesaController>/5
         [HttpGet("{id}")]
         public IResult Get(int id)
-        {
+    {
 
-            var mesa = mesas.FirstOrDefault(m => m.Id == id);
+            var mesa = _context.Mesas.FirstOrDefault(m => m.Id == id);
             if (mesa is null)
             {
                 return Results.NotFound("Mesa não encontrada");
@@ -51,12 +44,12 @@ namespace Comandas_API.Controllers
         {
             var novaMesa = new Mesa
             {
-                Id = mesas.Count + 1,
+                
                 NumeroMesa = mesaCreate.NumeroMesa,
                 SituacaoMesa = mesaCreate.SituacaoMesa
             };
             //adicionar a nova mesa na lista
-            mesas.Add(novaMesa);
+            _context.Add(novaMesa);
             //retornar a nova mesa criada e o codigo 201 CREATED
             return Results.Created($"/api/mesa/{novaMesa.Id}", novaMesa);
         }
@@ -72,7 +65,7 @@ namespace Comandas_API.Controllers
           if(mesaUpdate.SituacaoMesa < 0 || mesaUpdate.SituacaoMesa > 2)
 
                 Results.BadRequest("A situação da mesa deve ser 0 (Livre), 1 (Ocupada) ou 2 (Reservada).");
-          var mesa = mesas.FirstOrDefault(m => m.Id == id);
+          var mesa = _context.Mesas.FirstOrDefault(m => m.Id == id);
             if (mesa is null)
                 return Results.NotFound($"Mesa {id} não encontrada.");
             mesa.NumeroMesa = mesaUpdate.NumeroMesa;
@@ -82,8 +75,15 @@ namespace Comandas_API.Controllers
 
         // DELETE api/<MesaController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IResult Delete(int id)
         {
+            var mesa = _context.Mesas
+               .FirstOrDefault(c => c.Id == id);
+            if (mesa is null)
+                return Results.NotFound("pedido não encontrado");
+            var removidoComSucesso = _context.Remove(mesa);
+
+            return Results.Ok("Mesa removida com sucesso");
         }
     }
 }

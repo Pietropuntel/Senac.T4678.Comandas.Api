@@ -1,5 +1,6 @@
 ﻿using Comandas_API.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,40 +9,28 @@ namespace Comandas_API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class PedidoCozinhaController : ControllerBase
-    {   
-        List<PedidoCozinha> pedidos = new List<PedidoCozinha>()
+       
+    {
+        public ComandasDbContext _context { get; set; }
+
+        public PedidoCozinhaController(ComandasDbContext context)
         {
-            new PedidoCozinha
-            {
-                Id = 1,
-                ComandaId = 1,
-
-
-            },
-            new PedidoCozinha
-            {
-                Id = 2,
-               ComandaId = 2,
-            }
-        };
-
-
-
-
-
+            _context = context;
+        }
 
         // GET: api/<PedidoCozinhaController>
         [HttpGet]
         public IResult Get()
         {
-            return Results.Ok(pedidos);
+            var PedidoCozinha = _context.PedidoCozinhas.ToList();
+            return Results.Ok(PedidoCozinha);
         }
 
         // GET api/<PedidoCozinhaController>/5
         [HttpGet("{id}")]
         public IResult Get(int id)
         {
-            var pedido = pedidos.FirstOrDefault(p => p.Id == id);
+            var pedido = _context.PedidoCozinhas.FirstOrDefault(p => p.Id == id);
             if (pedido is null)
             {
                 return Results.NotFound("Pedido não encontrado");
@@ -84,20 +73,30 @@ namespace Comandas_API.Controllers
         /// <param name="PedidoCozinha"></param>
         // PUT api/<PedidiCozinhaController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public IResult Put(int id, [FromBody] string value)
         {
-            var PedidoCozinha = pedidos.FirstOrDefault(c => c.Id == id);
+            var PedidoCozinha = _context.PedidoCozinhas.FirstOrDefault(c => c.Id == id);
             if (PedidoCozinha is null)
                 return Results.NotFound($"Pedido Cozinha do id {id} Nao encontrado");
-            PedidoCozinha.PedidoCozinhaId = PedidoCozinha.pedidos;
-            PedidoCozinha.ComandaItemId = PedidoCozinha.ComandaId;
+            
             return Results.NoContent();
         }
 
         // DELETE api/<PedidoCozinhaController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IResult Delete(int id)
         {
+            var pedidosCozinha = _context.PedidoCozinhas
+                .FirstOrDefault(c => c.Id == id);
+            if (pedidosCozinha is null)
+                return Results.NotFound("pedido não encontrado");
+            _context.PedidoCozinhas.Remove(pedidosCozinha);
+            var removido = _context.SaveChanges();
+            if (removido > 0 )
+            {
+                return Results.NotFound();
+            }
+            return Results.StatusCode(500);
         }
     }
 }
