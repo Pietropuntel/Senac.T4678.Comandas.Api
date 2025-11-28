@@ -78,6 +78,19 @@ namespace Comandas_API.Controllers
         [HttpPost]
         public async Task<ActionResult<Reserva>> PostReserva(Reserva reserva)
         {
+            var mesa = await _context.Mesas.FirstOrDefaultAsync(m => m.NumeroMesa == reserva.NumeroMesa);
+            if (mesa == null)
+            {
+                return BadRequest("Mesa não existe.");
+            }
+
+            if(mesa.SituacaoMesa != 0 )
+            {
+                return BadRequest("Mesa está ocupada no momento.");
+            }
+
+            mesa.SituacaoMesa = 2; // Reservada
+
             _context.Reservas.Add(reserva);
             await _context.SaveChangesAsync();
 

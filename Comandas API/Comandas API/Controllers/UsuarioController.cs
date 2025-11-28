@@ -53,6 +53,14 @@ namespace Comandas_API.Controllers
             {
                 return Results.BadRequest("O email deve ter no mínimo 5 caracteres e conter @");
             }
+            var emailExistente = _context.Usuarios
+                .FirstOrDefault(u => u.Email == usuarioCreate.Email);
+            if (emailExistente is not null)
+                return Results.BadRequest("Email já cadastrado");
+
+
+
+
             var usuario = new Usuario
             {
                 Nome = usuarioCreate.Nome,
@@ -110,9 +118,15 @@ namespace Comandas_API.Controllers
         // {"email": "rafael@htmail
 
         [HttpPost("login")]
-        public IResult Login([FromBody] LoginRequest loginRequest)
-        {
+        public IResult Login([FromBody] DTOS.LoginRequest loginRequest)
+        {   
+            var usuario = _context.Usuarios
+                .FirstOrDefault(u => u.Email == loginRequest.email && u.Senha == loginRequest.senha);
 
+            //responde 401
+            if (usuario is null)
+                return Results.Unauthorized();
+            // responde 200
             return Results.Ok("Usuario autenticado");
         }
     }
