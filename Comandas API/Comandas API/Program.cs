@@ -20,7 +20,15 @@ var app = builder.Build();
     app.UseSwagger();
     app.UseSwaggerUI();
 //}
-
+// criar banco de dados
+// criar um scopo usado para obter instancias de variaveis
+using (var scope = app.Services.CreateScope())
+{
+    // obtem um objeto do banco de dados 
+    var db = scope.ServiceProvider.GetRequiredService<ComandasDbContext>();
+    // executa as migrações no banco de dados 
+    await db.Database.MigrateAsync();
+}
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
